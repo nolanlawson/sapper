@@ -33,18 +33,25 @@ if ('scrollRestoration' in history) {
 function select_route(url) {
     if (url.origin !== window.location.origin)
         return null;
-    for (var _i = 0, routes_1 = routes; _i < routes_1.length; _i++) {
-        var route = routes_1[_i];
+    var _loop_1 = function (route) {
         var match = route.pattern.exec(url.pathname);
         if (match) {
             var params = route.params(match);
-            var query = {};
-            for (var _a = 0, _b = url.searchParams; _a < _b.length; _a++) {
-                var _c = _b[_a], key = _c[0], value = _c[1];
-                query[key] = value || true;
+            var query_1 = {};
+            if (url.search.length > 0) {
+                url.search.slice(1).split('&').forEach(function (searchParam) {
+                    var _a = /([^=]+)=(.*)/.exec(searchParam), key = _a[1], value = _a[2];
+                    query_1[key] = value || true;
+                });
             }
-            return { route: route, data: { params: params, query: query } };
+            return { value: { route: route, data: { params: params, query: query_1 } } };
         }
+    };
+    for (var _i = 0, routes_1 = routes; _i < routes_1.length; _i++) {
+        var route = routes_1[_i];
+        var state_1 = _loop_1(route);
+        if (typeof state_1 === "object")
+            return state_1.value;
     }
 }
 var current_token;
