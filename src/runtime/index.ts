@@ -57,8 +57,9 @@ function render(Component: ComponentConstructor, data: any, scroll: ScrollPositi
 			detach(end);
 		}
 
+		// monkey-patch: disable all route preloading, can't tell why this even exists
 		// preload additional routes
-		routes.reduce((promise: Promise<any>, route) => promise.then(route.load), Promise.resolve());
+		//routes.reduce((promise: Promise<any>, route) => promise.then(route.load), Promise.resolve());
 	}
 
 	component = new Component({
