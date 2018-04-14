@@ -24,8 +24,8 @@
     "relative": "^3.0.2",
     "require-relative": "^0.8.7",
     "rimraf": "^2.6.2",
-    "webpack": "^3.10.0",
-    "webpack-hot-middleware": "^2.21.0"
+    "webpack": "^4.5.0",
+    "webpack-hot-middleware": "^2.21.2"
   },
   "devDependencies": {
     "css-loader": "^0.28.7",
