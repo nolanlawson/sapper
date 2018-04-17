@@ -6,12 +6,7 @@ module.exports = {
 	client: {
 		entry: () => {
 			return {
-				main: [
-					entry.client,
-					// workaround for https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/456
-					'style-loader/lib/addStyles',
-					'css-loader/lib/css-base'
-				]
+				main: entry.client
 			};
 		},
 
