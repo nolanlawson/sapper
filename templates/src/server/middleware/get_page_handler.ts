@@ -34,6 +34,7 @@ export function get_page_handler(
 	}
 
 	async function handle_page(page: Page, req: Req, res: Res, status = 200, error: Error | string = null) {
+		const isIndexHtml = req.path === '/index.html';
 		const build_info: {
 			bundler: 'rollup' | 'webpack',
 			shimport: string | null,
@@ -47,7 +48,7 @@ export function get_page_handler(
 		// preload main.js and current route
 		// TODO detect other stuff we can preload? images, CSS, fonts?
 		let preloaded_chunks = Array.isArray(build_info.assets.main) ? build_info.assets.main : [build_info.assets.main];
-		if (!error) {
+		if (!error && !isIndexHtml) {
 			page.parts.forEach(part => {
 				if (!part) return;
 
@@ -142,17 +143,22 @@ export function get_page_handler(
 
 			match = error ? null : page.pattern.exec(req.path);
 
-			preloaded = await Promise.all([root_preloaded].concat(page.parts.map(part => {
-				if (!part) return null;
+			let toPreload = [root_preloaded];
+			if (!isIndexHtml) {
+				toPreload = toPreload.concat(page.parts.map(part => {
+                    if (!part) return null;
 
-				return part.component.preload
-					? part.component.preload.call(preload_context, {
-						path: req.path,
-						query: req.query,
-						params: part.params ? part.params(match) : {}
-					})
-					: {};
-			})));
+                    return part.component.preload
+                        ? part.component.preload.call(preload_context, {
+                            path: req.path,
+                            query: req.query,
+                            params: part.params ? part.params(match) : {}
+                        })
+                        : {};
+                }))
+			}
+
+            preloaded = await Promise.all(toPreload);
 		} catch (err) {
 			preload_error = { statusCode: 500, message: err };
 			preloaded = []; // appease TypeScript
@@ -201,24 +207,30 @@ export function get_page_handler(
 			});
 
 			let level = data.child;
-			for (let i = 0; i < page.parts.length; i += 1) {
-				const part = page.parts[i];
-				if (!part) continue;
+			if (isIndexHtml) {
+				level.props = Object.assign({}, props, {
+                    params: {}
+                })
+            } else {
+                for (let i = 0; i < page.parts.length; i += 1) {
+                    const part = page.parts[i];
+                    if (!part) continue;
 
-				const get_params = part.params || (() => ({}));
+                    const get_params = part.params || (() => ({}));
 
-				Object.assign(level, {
-					component: part.component,
-					props: Object.assign({}, props, {
-						params: get_params(match)
-					}, preloaded[i + 1])
-				});
+                    Object.assign(level, {
+                        component: part.component,
+                        props: Object.assign({}, props, {
+                            params: get_params(match)
+                        }, preloaded[i + 1])
+                    });
 
-				level.props.child = <Props["child"]>{
-					segment: segments[i + 1]
-				};
-				level = level.props.child;
-			}
+                    level.props.child = <Props["child"]>{
+                        segment: segments[i + 1]
+                    };
+                    level = level.props.child;
+                }
+            }
 
 			const { html, head, css } = manifest.root.render(data, {
 				store
@@ -299,6 +311,12 @@ export function get_page_handler(
 
 	return function find_route(req: Req, res: Res, next: () => void) {
 		if (req[IGNORE]) return next();
+
+		if (req.path === '/index.html') {
+			const homePage = pages.find(page => page.pattern.test('/'));
+			handle_page(homePage, req, res);
+			return;
+		}
 
 		if (!server_routes.some(route => route.pattern.test(req.path))) {
 			for (const page of pages) {
