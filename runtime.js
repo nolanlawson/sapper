@@ -184,7 +184,7 @@ var inited;
 function init(_target, _routes) {
     target = _target;
     routes = _routes;
-    if (!inited) {
+    if (!inited) { // this check makes HMR possible
         window.addEventListener('click', handle_click);
         window.addEventListener('popstate', handle_popstate);
         // prefetch
