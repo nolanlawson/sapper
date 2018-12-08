@@ -9,12 +9,6 @@ function findAnchor(node) {
 function which(event) {
     return event.which === null ? event.button : event.which;
 }
-function scroll_state() {
-    return {
-        x: window.scrollX,
-        y: window.scrollY
-    };
-}
 
 var component;
 var target;
@@ -24,7 +18,6 @@ var history = typeof window !== 'undefined' ? window.history : {
     replaceState: function (state, title, href) { },
     scrollRestoration: ''
 };
-var scroll_history = {};
 var uid = 1;
 var cid;
 if ('scrollRestoration' in history) {
@@ -55,7 +48,7 @@ function select_route(url) {
     }
 }
 var current_token;
-function render(Component, data, scroll, token) {
+function render(Component, data, token) {
     if (current_token !== token)
         return;
     if (component) {
@@ -80,9 +73,6 @@ function render(Component, data, scroll, token) {
         data: data,
         hydrate: !!component
     });
-    if (scroll) {
-        window.scrollTo(scroll.x, scroll.y);
-    }
 }
 function prepare_route(Component, data) {
     return Promise.resolve(Component.preload ? Component.preload(data) : {}).then(function (preloaded) {
@@ -98,10 +88,7 @@ function navigate(url, id) {
             cid = id;
         }
         else {
-            // clicked on a link. preserve scroll state
-            scroll_history[cid] = scroll_state();
             id = cid = ++uid;
-            scroll_history[cid] = { x: 0, y: 0 };
         }
         var loaded = prefetching && prefetching.href === url.href ?
             prefetching.promise :
@@ -110,7 +97,7 @@ function navigate(url, id) {
         var token_1 = current_token = {};
         loaded.then(function (_a) {
             var Component = _a.Component, data = _a.data;
-            render(Component, data, scroll_history[id], token_1);
+            render(Component, data, token_1);
         });
         cid = id;
         return true;
@@ -154,7 +141,6 @@ function handle_click(event) {
     }
 }
 function handle_popstate(event) {
-    scroll_history[cid] = scroll_state();
     if (event.state) {
         navigate(new URL(window.location.href), event.state.id);
     }
@@ -184,7 +170,7 @@ var inited;
 function init(_target, _routes) {
     target = _target;
     routes = _routes;
-    if (!inited) {
+    if (!inited) { // this check makes HMR possible
         window.addEventListener('click', handle_click);
         window.addEventListener('popstate', handle_popstate);
         // prefetch
@@ -193,11 +179,7 @@ function init(_target, _routes) {
         inited = true;
     }
     setTimeout(function () {
-        var _a = window.location, hash = _a.hash, href = _a.href;
-        var deep_linked = hash && document.querySelector(hash);
-        scroll_history[uid] = deep_linked ?
-            { x: 0, y: deep_linked.getBoundingClientRect().top } :
-            scroll_state();
+        var href = window.location.href;
         history.replaceState({ id: uid }, '', href);
         navigate(new URL(window.location.href), uid);
     });

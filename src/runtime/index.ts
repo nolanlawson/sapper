@@ -1,4 +1,4 @@
-import { detach, findAnchor, scroll_state, which } from './utils';
+import { detach, findAnchor, which } from './utils';
 import { Component, ComponentConstructor, Params, Query, Route, RouteData, ScrollPosition } from './interfaces';
 
 export let component: Component;
@@ -11,7 +11,6 @@ const history = typeof window !== 'undefined' ? window.history : {
 	scrollRestoration: ''
 };
 
-const scroll_history: Record<string, ScrollPosition> = {};
 let uid = 1;
 let cid: number;
 
@@ -41,7 +40,7 @@ function select_route(url: URL): { route: Route, data: RouteData } {
 
 let current_token: {};
 
-function render(Component: ComponentConstructor, data: any, scroll: ScrollPosition, token: {}) {
+function render(Component: ComponentConstructor, data: any, token: {}) {
 	if (current_token !== token) return;
 
 	if (component) {
@@ -67,10 +66,6 @@ function render(Component: ComponentConstructor, data: any, scroll: ScrollPositi
 		data,
 		hydrate: !!component
 	});
-
-	if (scroll) {
-		window.scrollTo(scroll.x, scroll.y);
-	}
 }
 
 function prepare_route(Component, data) {
@@ -89,11 +84,7 @@ function navigate(url: URL, id: number) {
 			// popstate or initial navigation
 			cid = id;
 		} else {
-			// clicked on a link. preserve scroll state
-			scroll_history[cid] = scroll_state();
-
 			id = cid = ++uid;
-			scroll_history[cid] = { x: 0, y: 0 };
 		}
 
 		const loaded = prefetching && prefetching.href === url.href ?
@@ -105,7 +96,7 @@ function navigate(url: URL, id: number) {
 		const token = current_token = {};
 
 		loaded.then(({ Component, data }) => {
-			render(Component, data, scroll_history[id], token);
+            render(Component, data, token);
 		});
 
 		cid = id;
@@ -153,8 +144,6 @@ function handle_click(event: MouseEvent) {
 }
 
 function handle_popstate(event: PopStateEvent) {
-	scroll_history[cid] = scroll_state();
-
 	if (event.state) {
 		navigate(new URL(window.location.href), event.state.id);
 	} else {
@@ -205,12 +194,7 @@ export function init(_target: Node, _routes: Route[]) {
 	}
 
 	setTimeout(() => {
-		const { hash, href } = window.location;
-
-		const deep_linked = hash && document.querySelector(hash);
-		scroll_history[uid] = deep_linked ?
-			{ x: 0, y: deep_linked.getBoundingClientRect().top } :
-			scroll_state();
+		const { href } = window.location;
 
 		history.replaceState({ id: uid }, '', href);
 		navigate(new URL(window.location.href), uid);
