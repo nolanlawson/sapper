@@ -118,6 +118,9 @@ function navigate(target, id, noscroll, hash) {
         if (redirect) {
             return goto(redirect.location, { replaceState: true });
         }
+        if (segments.length === new_segments.length && segments.every((_, i) => _ === new_segments[i])) {
+            return; // nothing changed
+        }
         if (new_segments) {
             segments = new_segments;
         }
