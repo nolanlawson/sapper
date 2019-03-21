@@ -141,6 +141,9 @@ export function navigate(target: Target, id: number, noscroll?: boolean, hash?: 
 		if (redirect) {
 			return goto(redirect.location, { replaceState: true });
 		}
+		if (id > 1 && segments.length === new_segments.length && segments.every((_, i) => _ === new_segments[i])) {
+			return; // nothing changed
+		}
 		if (new_segments) {
 			segments = new_segments;
 		}
