@@ -22,6 +22,7 @@ let segments: string[] = [];
 let current_token: {};
 let root_preload: Promise<any>;
 let root_data: any;
+let firstTime = true;
 
 const root_props: RootProps = {
 	path: null,
@@ -138,14 +139,21 @@ export function navigate(target: Target, id: number, noscroll?: boolean, hash?: 
 	const token = current_token = {};
 
 	return loaded.then(({ redirect, data, nullable_depth, new_segments }) => {
-		if (redirect) {
-			return goto(redirect.location, { replaceState: true });
+		try {
+			if (redirect) {
+				return goto(redirect.location, {replaceState: true});
+			}
+			if (!firstTime && segments.length === new_segments.length && segments.every((_, i) => _ === new_segments[i])) {
+				return; // nothing changed
+			}
+			if (new_segments) {
+				segments = new_segments;
+			}
+			render(data, nullable_depth, scroll_history[id], noscroll, hash, token);
+			if (document.activeElement) document.activeElement.blur();
+		} finally {
+			firstTime = false;
 		}
-		if (new_segments) {
-			segments = new_segments;
-		}
-		render(data, nullable_depth, scroll_history[id], noscroll, hash, token);
-		if (document.activeElement) document.activeElement.blur();
 	});
 }
 
