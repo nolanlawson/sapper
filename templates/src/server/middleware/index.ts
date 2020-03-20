@@ -116,8 +116,8 @@ export function serve({ prefix, pathname, cache_control }: {
 	const cache: Map<string, Buffer> = new Map();
 
 	const read = dev
-		? (file: string) => fs.readFileSync(path.resolve(build_dir, file))
-		: (file: string) => (cache.has(file) ? cache : cache.set(file, fs.readFileSync(path.resolve(build_dir, file)))).get(file)
+		? (file: string) => fs.readFileSync(path.join(build_dir, file))
+		: (file: string) => (cache.has(file) ? cache : cache.set(file, fs.readFileSync(path.join(build_dir, file)))).get(file)
 
 	return (req: Req, res: Res, next: () => void) => {
 		if (req[IGNORE]) return next();
@@ -126,7 +126,7 @@ export function serve({ prefix, pathname, cache_control }: {
 			const type = lookup(req.path);
 
 			try {
-				const file = decodeURIComponent(req.path.slice(1));
+				const file = path.posix.normalize(decodeURIComponent(req.path));
 				const data = read(file);
 
 				res.setHeader('Content-Type', type);
