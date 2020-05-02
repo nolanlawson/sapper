@@ -10,6 +10,4 @@ test/app/export
 test/app/build
 sapper
 runtime.js
-dist
 !rollup.config.js
-templates/*.js

@@ -10,8 +10,8 @@
     "webpack",
     "config",
     "sapper",
-    "dist/*.js",
-    "templates/*.js"
+    "dist",
+    "templates"
   ],
   "directories": {
     "test": "test"
