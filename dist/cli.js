@@ -506,7 +506,7 @@ class Sade {
 
 var lib$1 = str => new Sade(str);
 
-var version = "0.25.0";
+var version = "0.27.12";
 
 var _this = undefined;
 var prog = lib$1('sapper').version(version);

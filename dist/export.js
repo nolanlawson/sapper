@@ -3201,7 +3201,9 @@ function resolve(from, to) {
     return url.parse(url.resolve(from, to));
 }
 function _export(_a) {
-    var _b = _a === void 0 ? {} : _a, cwd = _b.cwd, _c = _b.static, static_files = _c === void 0 ? 'static' : _c, _d = _b.build_dir, build_dir = _d === void 0 ? '__sapper__/build' : _d, _e = _b.export_dir, export_dir = _e === void 0 ? '__sapper__/export' : _e, _f = _b.basepath, basepath = _f === void 0 ? '' : _f, _g = _b.timeout, timeout = _g === void 0 ? 5000 : _g, _h = _b.oninfo, oninfo = _h === void 0 ? __chunk_3.noop : _h, _j = _b.onfile, onfile = _j === void 0 ? __chunk_3.noop : _j;
+    var _b = _a === void 0 ? {} : _a, cwd = _b.cwd, _c = _b.static, static_files = _c === void 0 ? 'static' : _c, _d = _b.build_dir, build_dir = _d === void 0 ? '__sapper__/build' : _d, _e = _b.export_dir, export_dir = _e === void 0 ? '__sapper__/export' : _e, _f = _b.basepath, basepath = _f === void 0 ? '' : _f, _g = _b.timeout, timeout = _g === void 0 ? 300000 : _g, // 5 minutes
+    _h = _b.oninfo, // 5 minutes
+    oninfo = _h === void 0 ? __chunk_3.noop : _h, _j = _b.onfile, onfile = _j === void 0 ? __chunk_3.noop : _j;
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         function save(path$$1, status, type, body) {
             var pathname = resolve(origin, path$$1).pathname;
