@@ -42,7 +42,7 @@ async function _export({
 	build_dir = '__sapper__/build',
 	export_dir = '__sapper__/export',
 	basepath = '',
-	timeout = 5000,
+	timeout = 300000, // 5 minutes
 	oninfo = noop,
 	onfile = noop
 }: Opts = {}) {
