@@ -587,12 +587,115 @@ var RollupCompiler = /** @class */ (function () {
     return RollupCompiler;
 }());
 
+const { FORCE_COLOR, NODE_DISABLE_COLORS, TERM } = process.env;
+
+const $ = {
+	enabled: !NODE_DISABLE_COLORS && TERM !== 'dumb' && FORCE_COLOR !== '0',
+
+	// modifiers
+	reset: init(0, 0),
+	bold: init(1, 22),
+	dim: init(2, 22),
+	italic: init(3, 23),
+	underline: init(4, 24),
+	inverse: init(7, 27),
+	hidden: init(8, 28),
+	strikethrough: init(9, 29),
+
+	// colors
+	black: init(30, 39),
+	red: init(31, 39),
+	green: init(32, 39),
+	yellow: init(33, 39),
+	blue: init(34, 39),
+	magenta: init(35, 39),
+	cyan: init(36, 39),
+	white: init(37, 39),
+	gray: init(90, 39),
+	grey: init(90, 39),
+
+	// background colors
+	bgBlack: init(40, 49),
+	bgRed: init(41, 49),
+	bgGreen: init(42, 49),
+	bgYellow: init(43, 49),
+	bgBlue: init(44, 49),
+	bgMagenta: init(45, 49),
+	bgCyan: init(46, 49),
+	bgWhite: init(47, 49)
+};
+
+function run(arr, str) {
+	let i=0, tmp, beg='', end='';
+	for (; i < arr.length; i++) {
+		tmp = arr[i];
+		beg += tmp.open;
+		end += tmp.close;
+		if (str.includes(tmp.close)) {
+			str = str.replace(tmp.rgx, tmp.close + tmp.open);
+		}
+	}
+	return beg + str + end;
+}
+
+function chain(has, keys) {
+	let ctx = { has, keys };
+
+	ctx.reset = $.reset.bind(ctx);
+	ctx.bold = $.bold.bind(ctx);
+	ctx.dim = $.dim.bind(ctx);
+	ctx.italic = $.italic.bind(ctx);
+	ctx.underline = $.underline.bind(ctx);
+	ctx.inverse = $.inverse.bind(ctx);
+	ctx.hidden = $.hidden.bind(ctx);
+	ctx.strikethrough = $.strikethrough.bind(ctx);
+
+	ctx.black = $.black.bind(ctx);
+	ctx.red = $.red.bind(ctx);
+	ctx.green = $.green.bind(ctx);
+	ctx.yellow = $.yellow.bind(ctx);
+	ctx.blue = $.blue.bind(ctx);
+	ctx.magenta = $.magenta.bind(ctx);
+	ctx.cyan = $.cyan.bind(ctx);
+	ctx.white = $.white.bind(ctx);
+	ctx.gray = $.gray.bind(ctx);
+	ctx.grey = $.grey.bind(ctx);
+
+	ctx.bgBlack = $.bgBlack.bind(ctx);
+	ctx.bgRed = $.bgRed.bind(ctx);
+	ctx.bgGreen = $.bgGreen.bind(ctx);
+	ctx.bgYellow = $.bgYellow.bind(ctx);
+	ctx.bgBlue = $.bgBlue.bind(ctx);
+	ctx.bgMagenta = $.bgMagenta.bind(ctx);
+	ctx.bgCyan = $.bgCyan.bind(ctx);
+	ctx.bgWhite = $.bgWhite.bind(ctx);
+
+	return ctx;
+}
+
+function init(open, close) {
+	let blk = {
+		open: `\x1b[${open}m`,
+		close: `\x1b[${close}m`,
+		rgx: new RegExp(`\\x1b\\[${close}m`, 'g')
+	};
+	return function (txt) {
+		if (this !== void 0 && this.has !== void 0) {
+			this.has.includes(open) || (this.has.push(open),this.keys.push(blk));
+			return txt === void 0 ? this : $.enabled ? run(this.keys, txt+'') : txt+'';
+		}
+		return txt === void 0 ? chain([open], [blk]) : $.enabled ? run([blk], txt+'') : txt+'';
+	};
+}
+
+var kleur = $;
+
 /**
  * This has been adapted from `create-react-app`, authored by Facebook, Inc.
  * see: https://github.com/facebookincubator/create-react-app/tree/master/packages/react-dev-utils
  */
 
-const { inverse } = __chunk_4.kleur;
+
 
 const errorLabel = 'Syntax error:';
 const isLikelyASyntaxError = str => str.includes(errorLabel);
@@ -601,51 +704,58 @@ const exportRegex = /\s*(.+?)\s*(")?export '(.+?)' was not found in '(.+?)'/;
 const stackRegex = /^\s*at\s((?!webpack:).)*:\d+:\d+[\s\)]*(\n|$)/gm;
 
 function formatMessage(message, isError) {
-  let lines = message.split('\n');
+	// Workaround to accommodate Webpack v5
+	// It gives us an Object now, not a string...
+	// Objects not identical; details > stack > message
+	if (typeof message === 'object') {
+		message = message.details || message.stack || message.message;
+	}
 
-  if (lines.length > 2 && lines[1] === '') {
-    lines.splice(1, 1); // Remove extra newline.
-  }
+	let lines = message.split('\n');
 
-  // Remove loader notation from filenames:
-  //   `./~/css-loader!./src/App.css` ~~> `./src/App.css`
-  if (lines[0].lastIndexOf('!') !== -1) {
-    lines[0] = lines[0].substr(lines[0].lastIndexOf('!') + 1);
-  }
+	if (lines.length > 2 && lines[1] === '') {
+		lines.splice(1, 1); // Remove extra newline.
+	}
+
+	// Remove loader notation from filenames:
+	//   `./~/css-loader!./src/App.css` ~~> `./src/App.css`
+	if (lines[0].lastIndexOf('!') !== -1) {
+		lines[0] = lines[0].substr(lines[0].lastIndexOf('!') + 1);
+	}
 
 	// Remove useless `entry` filename stack details
-  lines = lines.filter(line => line.indexOf(' @ ') !== 0);
+	lines = lines.filter(line => line.indexOf(' @ ') !== 0);
 
-  // 0 ~> filename; 1 ~> main err msg
-  if (!lines[0] || !lines[1]) {
-    return lines.join('\n');
-  }
+	// 0 ~> filename; 1 ~> main err msg
+	if (!lines[0] || !lines[1]) {
+		return lines.join('\n');
+	}
 
-  // Cleans up verbose "module not found" messages for files and packages.
-  if (lines[1].startsWith('Module not found: ')) {
-    lines = [
-      lines[0],
-      lines[1] // "Module not found: " is enough detail
-        .replace("Cannot resolve 'file' or 'directory' ", '')
-        .replace('Cannot resolve module ', '')
-        .replace('Error: ', '')
-        .replace('[CaseSensitivePathsPlugin] ', '')
-    ];
-  }
+	// Cleans up verbose "module not found" messages for files and packages.
+	if (lines[1].startsWith('Module not found: ')) {
+		lines = [
+			lines[0],
+			lines[1] // "Module not found: " is enough detail
+				.replace("Cannot resolve 'file' or 'directory' ", '')
+				.replace('Cannot resolve module ', '')
+				.replace('Error: ', '')
+				.replace('[CaseSensitivePathsPlugin] ', '')
+		];
+	}
 
-  // Cleans up syntax error messages.
-  if (lines[1].startsWith('Module build failed: ')) {
-    lines[1] = lines[1].replace('Module build failed: SyntaxError:', errorLabel);
-  }
+	// Cleans up syntax error messages.
+	if (lines[1].startsWith('Module build failed: ')) {
+		lines[1] = lines[1].replace('Module build failed: SyntaxError:', errorLabel);
+	}
 
-  if (lines[1].match(exportRegex)) {
-    lines[1] = lines[1].replace(exportRegex, "$1 '$4' does not contain an export named '$3'.");
-  }
+	if (lines[1].match(exportRegex)) {
+		lines[1] = lines[1].replace(exportRegex, "$1 '$4' does not contain an export named '$3'.");
+	}
 
-  lines[0] = inverse(lines[0]);
+	lines[0] = kleur.inverse(lines[0]);
 
-  // Reassemble & Strip internal tracing, except `webpack:` -- (create-react-app/pull/1050)
-  return lines.join('\n').replace(stackRegex, '').trim();
+	// Reassemble & Strip internal tracing, except `webpack:` -- (create-react-app/pull/1050)
+	return lines.join('\n').replace(stackRegex, '').trim();
 }
 
 var webpackFormatMessages = function (stats) {
@@ -657,16 +767,16 @@ var webpackFormatMessages = function (stats) {
 	};
 
 	// Only show syntax errors if we have them
-  if (result.errors.some(isLikelyASyntaxError)) {
-    result.errors = result.errors.filter(isLikelyASyntaxError);
-  }
+	if (result.errors.some(isLikelyASyntaxError)) {
+		result.errors = result.errors.filter(isLikelyASyntaxError);
+	}
 
-  // First error is usually it; others usually the same
-  if (result.errors.length > 1) {
-    result.errors.length = 1;
-  }
+	// First error is usually it; others usually the same
+	if (result.errors.length > 1) {
+		result.errors.length = 1;
+	}
 
-  return result;
+	return result;
 };
 
 var formatMessage_1 = formatMessage;

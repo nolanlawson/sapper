@@ -199,7 +199,6 @@ exports.walk = walk;
 exports.write_if_changed = write_if_changed;
 exports.colors = kleur;
 exports.left_pad = left_pad;
-exports.kleur = kleur;
 exports.reserved_words = reserved_words;
 exports.elapsed = elapsed;
 exports.repeat = repeat;
