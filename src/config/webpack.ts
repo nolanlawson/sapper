@@ -13,8 +13,8 @@ export default {
 		output: () => {
 			return {
 				path: `${dest}/client`,
-				filename: '[hash]/[name].js',
-				chunkFilename: '[hash]/[name].[id].js',
+				filename: '[fullhash]/[name].js',
+				chunkFilename: '[fullhash]/[name].[id].js',
 				publicPath: `client/`
 			};
 		}
@@ -31,7 +31,7 @@ export default {
 			return {
 				path: `${dest}/server`,
 				filename: '[name].js',
-				chunkFilename: '[hash]/[name].[id].js',
+				chunkFilename: '[fullhash]/[name].[id].js',
 				libraryTarget: 'commonjs2'
 			};
 		}
@@ -48,7 +48,7 @@ export default {
 			return {
 				path: dest,
 				filename: '[name].js',
-				chunkFilename: '[name].[id].[hash].js'
+				chunkFilename: '[name].[id].[fullhash].js'
 			}
 		}
 	}

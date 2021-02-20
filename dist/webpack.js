@@ -13,8 +13,8 @@ var webpack = {
         output: function () {
             return {
                 path: __chunk_5.dest + "/client",
-                filename: '[hash]/[name].js',
-                chunkFilename: '[hash]/[name].[id].js',
+                filename: '[fullhash]/[name].js',
+                chunkFilename: '[fullhash]/[name].[id].js',
                 publicPath: "client/"
             };
         }
@@ -29,7 +29,7 @@ var webpack = {
             return {
                 path: __chunk_5.dest + "/server",
                 filename: '[name].js',
-                chunkFilename: '[hash]/[name].[id].js',
+                chunkFilename: '[fullhash]/[name].[id].js',
                 libraryTarget: 'commonjs2'
             };
         }
@@ -44,7 +44,7 @@ var webpack = {
             return {
                 path: __chunk_5.dest,
                 filename: '[name].js',
-                chunkFilename: '[name].[id].[hash].js'
+                chunkFilename: '[name].[id].[fullhash].js'
             };
         }
     }
