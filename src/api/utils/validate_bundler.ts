@@ -1,10 +1,12 @@
 import * as fs from 'fs';
 
+const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js'
+
 export default function validate_bundler(bundler?: 'rollup' | 'webpack') {
 	if (!bundler) {
 		bundler = (
 			fs.existsSync('rollup.config.js') ? 'rollup' :
-			fs.existsSync('webpack.config.js') ? 'webpack' :
+			fs.existsSync(WEBPACK_CONFIG_FILE) ? 'webpack' :
 			null
 		);
 

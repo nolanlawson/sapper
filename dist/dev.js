@@ -17,7 +17,7 @@ var __chunk_3 = require('./chunk-275bacad.js');
 var EventEmitter = require('events');
 var EventEmitter__default = _interopDefault(EventEmitter);
 var core = require('./core.js');
-var __chunk_6 = require('./chunk-930538e6.js');
+var __chunk_6 = require('./chunk-51f4730b.js');
 require('net');
 require('./chunk-21b7786f.js');
 require('util');
@@ -29,6 +29,7 @@ require('sourcemap-codec');
 require('./pretty-bytes.js');
 require('./chunk-abdec9a5.js');
 
+var SERVER_FILE_EXT = process.env.SERVER_FILE_EXT || 'js';
 function dev(opts) {
     return new Watcher(opts);
 }
@@ -222,7 +223,7 @@ var Watcher = /** @class */ (function (_super) {
                                     if (execArgv.some(function (arg) { return !!arg.match(debugArgRegex); })) {
                                         execArgv.push("--inspect-port=" + _this.devtools_port);
                                     }
-                                    _this.proc = child_process.fork(dest + "/server/server.js", [], {
+                                    _this.proc = child_process.fork(dest + "/server/server." + SERVER_FILE_EXT, [], {
                                         cwd: process.cwd(),
                                         env: Object.assign({
                                             PORT: _this.port

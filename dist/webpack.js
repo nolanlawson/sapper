@@ -2,6 +2,7 @@
 
 var __chunk_5 = require('./chunk-abdec9a5.js');
 
+var SERVER_FILE_EXT = process.env.SERVER_FILE_EXT || 'js';
 var webpack = {
     dev: __chunk_5.dev,
     client: {
@@ -28,7 +29,7 @@ var webpack = {
         output: function () {
             return {
                 path: __chunk_5.dest + "/server",
-                filename: '[name].js',
+                filename: '[name].' + SERVER_FILE_EXT,
                 chunkFilename: '[fullhash]/[name].[id].js',
                 libraryTarget: 'commonjs2'
             };

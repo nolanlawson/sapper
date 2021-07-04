@@ -1,5 +1,7 @@
 import { dev, src, dest } from './env';
 
+const SERVER_FILE_EXT = process.env.SERVER_FILE_EXT || 'js'
+
 export default {
 	dev,
 
@@ -30,7 +32,7 @@ export default {
 		output: () => {
 			return {
 				path: `${dest}/server`,
-				filename: '[name].js',
+				filename: '[name].' + SERVER_FILE_EXT,
 				chunkFilename: '[fullhash]/[name].[id].js',
 				libraryTarget: 'commonjs2'
 			};

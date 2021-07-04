@@ -880,6 +880,7 @@ var WebpackCompiler = /** @class */ (function () {
     return WebpackCompiler;
 }());
 
+var WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
 function create_compilers(bundler, cwd, src, dest, dev) {
     return tslib_1.__awaiter(this, void 0, Promise, function () {
         var config, config;
@@ -906,7 +907,7 @@ function create_compilers(bundler, cwd, src, dest, dev) {
                         }];
                 case 2:
                     if (bundler === 'webpack') {
-                        config = require(path.resolve(cwd, 'webpack.config.js'));
+                        config = require(path.resolve(cwd, WEBPACK_CONFIG_FILE));
                         validate_config(config, 'webpack');
                         return [2 /*return*/, {
                                 client: new WebpackCompiler(config.client),

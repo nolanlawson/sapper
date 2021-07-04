@@ -5,10 +5,11 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var fs = require('fs');
 var fs__default = _interopDefault(fs);
 
+var WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
 function validate_bundler(bundler) {
     if (!bundler) {
         bundler = (fs.existsSync('rollup.config.js') ? 'rollup' :
-            fs.existsSync('webpack.config.js') ? 'webpack' :
+            fs.existsSync(WEBPACK_CONFIG_FILE) ? 'webpack' :
                 null);
         if (!bundler) {
             // TODO remove in a future version
@@ -56,4 +57,4 @@ function read_template(dir) {
 exports.validate_bundler = validate_bundler;
 exports.copy_shimport = copy_shimport;
 exports.read_template = read_template;
-//# sourceMappingURL=chunk-930538e6.js.map
+//# sourceMappingURL=chunk-51f4730b.js.map

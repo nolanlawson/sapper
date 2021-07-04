@@ -16,6 +16,8 @@ import { ManifestData, FatalEvent, ErrorEvent, ReadyEvent, InvalidEvent } from '
 import read_template from '../core/read_template';
 import { noop } from './utils/noop';
 
+const SERVER_FILE_EXT = process.env.SERVER_FILE_EXT || 'js'
+
 type Opts = {
 	cwd?: string,
 	src?: string,
@@ -277,7 +279,7 @@ class Watcher extends EventEmitter {
 						execArgv.push(`--inspect-port=${this.devtools_port}`);
 					}
 
-					this.proc = child_process.fork(`${dest}/server/server.js`, [], {
+					this.proc = child_process.fork(`${dest}/server/server.${SERVER_FILE_EXT}`, [], {
 						cwd: process.cwd(),
 						env: Object.assign({
 							PORT: this.port

@@ -3,6 +3,8 @@ import RollupCompiler from './RollupCompiler';
 import { WebpackCompiler } from './WebpackCompiler';
 import { set_dev, set_src, set_dest } from '../../config/env';
 
+const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js'
+
 export type Compiler = RollupCompiler | WebpackCompiler;
 
 export type Compilers = {
@@ -41,7 +43,7 @@ export default async function create_compilers(
 	}
 
 	if (bundler === 'webpack') {
-		const config = require(path.resolve(cwd, 'webpack.config.js'));
+		const config = require(path.resolve(cwd, WEBPACK_CONFIG_FILE));
 		validate_config(config, 'webpack');
 
 		return {

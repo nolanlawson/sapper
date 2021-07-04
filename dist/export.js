@@ -3197,6 +3197,7 @@ function clean_html(html) {
         .replace(/<!--[\s\S]*?-->/gm, '');
 }
 
+var SERVER_FILE_EXT = process.env.SERVER_FILE_EXT || 'js';
 function resolve(from, to) {
     return url.parse(url.resolve(from, to));
 }
@@ -3338,7 +3339,7 @@ function _export(_a) {
                     oninfo({
                         message: "Crawling " + root.href
                     });
-                    proc = child_process.fork(path.resolve(build_dir + "/server/server.js"), [], {
+                    proc = child_process.fork(path.resolve(build_dir + "/server/server." + SERVER_FILE_EXT), [], {
                         cwd: cwd,
                         env: Object.assign({
                             PORT: port,

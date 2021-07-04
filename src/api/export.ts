@@ -11,6 +11,8 @@ import Deferred from './utils/Deferred';
 import { noop } from './utils/noop';
 import { parse as parseLinkHeader } from 'http-link-header';
 
+const SERVER_FILE_EXT = process.env.SERVER_FILE_EXT || 'js'
+
 type Opts = {
 	build_dir?: string,
 	export_dir?: string,
@@ -81,7 +83,7 @@ async function _export({
 		message: `Crawling ${root.href}`
 	});
 
-	const proc = child_process.fork(path.resolve(`${build_dir}/server/server.js`), [], {
+	const proc = child_process.fork(path.resolve(`${build_dir}/server/server.${SERVER_FILE_EXT}`), [], {
 		cwd,
 		env: Object.assign({
 			PORT: port,
